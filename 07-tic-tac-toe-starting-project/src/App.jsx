@@ -1,46 +1,76 @@
 import { useState } from "react";
+/* COMPONENTS */
 import Player from "./assets/components/Player";
 import GameBoard from "./assets/components/GameBoard";
 import Log from "./assets/components/Log";
+import GameOver from "./assets/components/GameOver";
+/* CONSTANTS */
+import { PLAYERS } from "./assets/WinningCompination";
+
+/* FUNCTIONS */
+import {
+  getSym,
+  caculateWinner,
+  buildGameBoard,
+} from "./assets/HelperFunctions";
+
 function App() {
   const [turns, setTurns] = useState([]);
+  const [players, setPlayers] = useState(PLAYERS);
 
-  const [playerSymbol, setPlayerSymbol] = useState("X");
+  const gameBoard = buildGameBoard(turns);
+  const winner = caculateWinner(gameBoard);
+  let playerSymbol = getSym(turns);
+  let isDraw = turns.length === 9 && !winner;
 
-  function onSelectAddLog(sym, row, col) {
+  function handleOnSelect(row, col) {
     setTurns((prevState) => {
-      const logObj = { player: sym, coordinate: { row: row, col: col } };
-      const newState = [...prevState];
-      newState.push(logObj);
+      let playerSym = getSym(prevState);
+      const newState = [
+        { player: playerSym, coordinate: { row: row, col: col } },
+        ...prevState,
+      ];
       return newState;
     });
   }
-  function onSelectSym() {
-    setPlayerSymbol((prevSymb) => (prevSymb === "X" ? "O" : "X"));
+
+  function handleRestart() {
+    setTurns([]);
   }
-  console.log(turns);
+
+  function handlePlayerNames(sym, player) {
+    setPlayers((prevState) => {
+      const newPlayersStateObj = {
+        ...prevState,
+        [sym]: player,
+      };
+      return newPlayersStateObj;
+    });
+  }
+
   return (
     <main>
       <div id="game-container">
         <ol id="players" className="highlight-player">
           <Player
-            name="player1"
+            name={PLAYERS.X}
             symbol="X"
             isActive={playerSymbol === "X" ? true : false}
+            onRename={handlePlayerNames}
           />
           <Player
-            name="player2"
+            name={PLAYERS.O}
             symbol="O"
             isActive={playerSymbol === "O" ? true : false}
+            onRename={handlePlayerNames}
           />
         </ol>
-        <GameBoard
-          onSelect={onSelectSym}
-          symbol={playerSymbol}
-          onAddLog={onSelectAddLog}
-        />
+        {(winner || isDraw) && (
+          <GameOver onRestart={handleRestart} winner={players[winner]} />
+        )}
+        <GameBoard onSelect={handleOnSelect} board={gameBoard} />
       </div>
-      <Log turns={turns} />
+      <Log turnsLog={turns} />
     </main>
   );
 }
