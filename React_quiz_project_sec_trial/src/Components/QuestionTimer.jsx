@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-export default function QustionTimer({ time, onTimeout, index }) {
+export default function QustionTimer({ time, onTimeout }) {
   const [remainingTime, setReaminingTime] = useState(time);
   useEffect(() => {
     const timer = setTimeout(onTimeout, time);
@@ -15,7 +15,7 @@ export default function QustionTimer({ time, onTimeout, index }) {
     return () => {
       clearInterval(timer);
     };
-  }, [index]);
+  }, []);
 
   return <progress id="question-time" value={remainingTime} max={time} />;
 }
