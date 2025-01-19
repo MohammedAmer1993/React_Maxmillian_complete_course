@@ -2,6 +2,7 @@ import QustionTimer from "./QuestionTimer";
 import Answers from "./Answers";
 import QUESTIONS from "../questions";
 import { useState, useCallback } from "react";
+import Progress from "./Progress";
 export default function Question({ onBtnClick, index }) {
   const [selectedAnswer, setSelectedAnswer] = useState({
     answer: "",
@@ -10,10 +11,6 @@ export default function Question({ onBtnClick, index }) {
   const handleSelect = useCallback(
     function (answer) {
       if (selectedAnswer.answer === "") {
-        if (answer === null) {
-          onBtnClick(answer);
-          return;
-        }
         setSelectedAnswer((prev) => {
           return { answer: answer, check: null };
         });
@@ -38,14 +35,23 @@ export default function Question({ onBtnClick, index }) {
   );
   const handleTimeout = useCallback(
     function () {
-      handleSelect(null);
+      onBtnClick(null);
     },
     [handleSelect]
   );
   return (
     <div id="question" key={index}>
       <h2>{QUESTIONS[index].text}</h2>
-      <QustionTimer time="3000" onTimeout={handleTimeout} />
+      {!selectedAnswer.answer ? (
+        <QustionTimer time="3000" onTimeout={handleTimeout} />
+      ) : null}
+      {selectedAnswer.answer && !selectedAnswer.check ? (
+        <Progress time={1000} />
+      ) : null}
+      {selectedAnswer.answer && selectedAnswer.check ? (
+        <Progress time={2000} />
+      ) : null}
+
       <Answers
         key={index}
         answerState={selectedAnswer}
