@@ -43,13 +43,13 @@ export default function Question({ onBtnClick, index }) {
     <div id="question" key={index}>
       <h2>{QUESTIONS[index].text}</h2>
       {!selectedAnswer.answer ? (
-        <QustionTimer time="3000" onTimeout={handleTimeout} />
+        <QustionTimer time="10000" onTimeout={handleTimeout} />
       ) : null}
       {selectedAnswer.answer && !selectedAnswer.check ? (
-        <Progress time={1000} />
+        <Progress time={1000} className="selected" />
       ) : null}
       {selectedAnswer.answer && selectedAnswer.check ? (
-        <Progress time={2000} />
+        <Progress time={2000} className={selectedAnswer.check} />
       ) : null}
 
       <Answers
