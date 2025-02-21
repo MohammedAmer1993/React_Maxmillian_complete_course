@@ -1,9 +1,12 @@
-import Users from './components/Users';
+import UserFinder from "./components/UserFinder";
+import MyContextPro from "./components/UserContext";
 
 function App() {
   return (
     <div>
-      <Users />
+      <MyContextPro>
+        <UserFinder />
+      </MyContextPro>
     </div>
   );
 }
