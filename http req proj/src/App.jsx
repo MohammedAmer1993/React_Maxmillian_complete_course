@@ -1,5 +1,5 @@
-import { useRef, useState, useCallback, useEffect } from "react";
-
+import { useRef, useState, useCallback } from "react";
+import { useFetch } from "./hooks/useFetch.js";
 import Places from "./components/Places.jsx";
 import Modal from "./components/Modal.jsx";
 import DeleteConfirmation from "./components/DeleteConfirmation.jsx";
@@ -11,29 +11,17 @@ import ErrorPage from "./components/Error.jsx";
 function App() {
   const selectedPlace = useRef();
 
-  const [userPlaces, setUserPlaces] = useState([]);
   const [putPlaceErr, setputPlaceErr] = useState(false);
   const [delPlaceErr, setDelPlaceErr] = useState(false);
   const [modalIsOpen, setModalIsOpen] = useState(false);
-  const [isFethcing, setIsFetching] = useState(false);
-  const [errorFetchingUsrPlaces, setErrorFetchingUsrPlaces] = useState(false);
 
-  useEffect(() => {
-    async function getUserPlaces() {
-      setIsFetching(true);
-      try {
-        const places = await fetchGetReq("http://localhost:3000/user-places");
-        setUserPlaces(places.places);
-      } catch (error) {
-        setErrorFetchingUsrPlaces({
-          message: error.message || "failed to get user places",
-        });
-      } finally {
-        setIsFetching(false);
-      }
-    }
-    getUserPlaces();
-  }, []);
+  const {
+    fetchedData: userPlaces,
+    fetchingError: errorFetchingUsrPlaces,
+    isFethcing,
+    setFetchedData: setUserPlaces,
+  } = useFetch(fetchGetReq, "http://localhost:3000/user-places", []);
+
   function handleStartRemovePlace(place) {
     setModalIsOpen(true);
     selectedPlace.current = place;
@@ -63,24 +51,29 @@ function App() {
     }
   }
 
-  const handleRemovePlace = useCallback(async function handleRemovePlace() {
-    setUserPlaces((prevPickedPlaces) =>
-      prevPickedPlaces.filter((place) => place.id !== selectedPlace.current.id)
-    );
-
-    try {
-      const places = userPlaces.filter(
-        (place) => place.id !== selectedPlace.current.id
+  const handleRemovePlace = useCallback(
+    async function handleRemovePlace() {
+      setUserPlaces((prevPickedPlaces) =>
+        prevPickedPlaces.filter(
+          (place) => place.id !== selectedPlace.current.id
+        )
       );
-      await fetchPutReq("http://localhost:3000/user-places", {
-        places: places,
-      });
-    } catch (error) {
-      setDelPlaceErr({ message: error.message || "couldn't delete place" });
-      setUserPlaces(userPlaces);
-    }
-    setModalIsOpen(false);
-  }, []);
+
+      try {
+        const places = userPlaces.filter(
+          (place) => place.id !== selectedPlace.current.id
+        );
+        await fetchPutReq("http://localhost:3000/user-places", {
+          places: places,
+        });
+      } catch (error) {
+        setDelPlaceErr({ message: error.message || "couldn't delete place" });
+        setUserPlaces(userPlaces);
+      }
+      setModalIsOpen(false);
+    },
+    [userPlaces, setUserPlaces]
+  );
 
   function handlePutErrModal() {
     setputPlaceErr(false);

@@ -4,7 +4,7 @@ export async function fetchGetReq(url) {
   if (!response.ok) {
     throw new Error("Faild to fetch data");
   }
-  return places;
+  return places.places;
 }
 
 export async function fetchPutReq(url, places) {

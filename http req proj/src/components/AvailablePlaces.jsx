@@ -1,50 +1,43 @@
 import Places from "./Places.jsx";
-import { useState, useEffect } from "react";
 import ErrorPage from "./Error.jsx";
 import { sortPlacesByDistance } from "../loc.js";
 import { fetchGetReq } from "../http.js";
+import { useFetch } from "../hooks/useFetch.js";
+
+async function fetchAndSort(url) {
+  const places = await fetchGetReq(url);
+  return new Promise((resolve, reject) => {
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        const sortedPlaces = sortPlacesByDistance(
+          places,
+          pos.coords.latitude,
+          pos.coords.longitude
+        );
+        resolve(sortedPlaces);
+      },
+      () => {
+        reject(places);
+      }
+    );
+  });
+}
 
 export default function AvailablePlaces({ onSelectPlace }) {
-  const [availablePlaces, setAvailablePlaces] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState(false);
-
-  useEffect(() => {
-    setIsLoading(true);
-    async function fetchData() {
-      try {
-        const places = await fetchGetReq("http://localhost:3000/places");
-        navigator.geolocation.getCurrentPosition(
-          (pos) => {
-            const sortedPlaces = sortPlacesByDistance(
-              places.places,
-              pos.coords.altitude,
-              pos.coords.longitude
-            );
-            setAvailablePlaces(sortedPlaces);
-            setIsLoading(false);
-          },
-          () => {
-            setAvailablePlaces(places.places);
-            setIsLoading(false);
-          }
-        );
-      } catch (error) {
-        setError(error);
-        setIsLoading(false);
-      }
-    }
-    fetchData();
-  }, []);
-
+  const {
+    fetchedData: availablePlaces,
+    isFethcing,
+    fetchingError: error,
+  } = useFetch(fetchAndSort, "http://localhost:3000/places", []);
   if (error) {
-    return <ErrorPage title={"Error"} message={error.message} />;
+    return <ErrorPage title="Error" message={error.message} />;
   }
+
   return (
     <Places
       title="Available Places"
       places={availablePlaces}
-      isLoading={isLoading}
+      isLoading={isFethcing}
       loadingText="fetching data ... "
       fallbackText="No places available."
       onSelectPlace={onSelectPlace}
