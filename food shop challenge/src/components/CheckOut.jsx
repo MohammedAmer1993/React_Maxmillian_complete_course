@@ -7,6 +7,7 @@ import { CartContext } from "../store/CartContextProvider";
 import { ProgressContext } from "../store/ProgressContextProvider";
 import { useContext } from "react";
 import { reduceArr } from "../util/utilityFunctions";
+import { useActionState } from "react";
 import Button from "../UI/Button";
 
 const config = {
@@ -20,7 +21,7 @@ export default function CheckOut() {
   const prgCtx = useContext(ProgressContext);
   const cartCtx = useContext(CartContext);
   const totalPrice = reduceArr(cartCtx.cartState.items, 0);
-  const { data, isLoading, error, sendRequest, resetState } = useHttp(
+  const { data, error, sendRequest, resetState } = useHttp(
     "http://localhost:3000/orders",
     config,
     false
@@ -35,9 +36,6 @@ export default function CheckOut() {
     </>
   );
 
-  if (isLoading) {
-    action = <span>Submitting your order...</span>;
-  }
   function handleClose() {
     prgCtx.hideCheckout();
   }
@@ -47,9 +45,7 @@ export default function CheckOut() {
     cartCtx.clearItems();
     resetState();
   }
-  async function handleSubmit(event) {
-    event.preventDefault();
-    const formData = new FormData(event.target);
+  async function handleAction(state, formData) {
     const clintOrder = Object.fromEntries(formData.entries());
     await sendRequest(
       JSON.stringify({
@@ -60,7 +56,11 @@ export default function CheckOut() {
       })
     );
   }
+  const [state, actionFunc, isLoading] = useActionState(handleAction, null);
 
+  if (isLoading) {
+    action = <span>Submitting your order...</span>;
+  }
   if (data && !error) {
     return (
       <Modal
@@ -79,7 +79,7 @@ export default function CheckOut() {
 
   return (
     <Modal open={prgCtx.cartProgress === "checkout"} onclose={handleClose}>
-      <form onSubmit={handleSubmit}>
+      <form action={actionFunc}>
         <h2></h2>
         <p>Total Amount: {currencyFormatter.format(totalPrice)}</p>
         <Input lable="Full name" id="name" type="text" />
