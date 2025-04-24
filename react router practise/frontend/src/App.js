@@ -6,31 +6,33 @@ import EventsPage, { eventPageLoader } from "./routes/EventsPage";
 import HomePage from "./routes/HomePage";
 import RootLayout from "./routes/RootLayout";
 import EventsLayout from "./routes/EventsLayout";
-import Spinner from "./components/Spinner";
+import ErrorPage from "./routes/ErrorPage";
+import { eventDetailLoader } from "./routes/EventDetailPage";
 
 const router = createBrowserRouter([
   {
     path: "/",
     element: <RootLayout />,
+    errorElement: <ErrorPage />,
     children: [
       { path: "/", element: <HomePage /> },
+
       {
         path: "events",
-        element: <Spinner />,
+        element: <EventsLayout />,
+        errorElement: <ErrorPage />,
         children: [
           {
             path: "",
-            element: <EventsLayout />,
-            children: [
-              {
-                path: "",
-                element: <EventsPage />,
-                loader: eventPageLoader,
-              },
-              { path: "new", element: <NewEventPage /> },
-              { path: ":id/edit", element: <EditEventPage /> },
-              { path: ":id", element: <EventDetailPage /> },
-            ],
+            element: <EventsPage />,
+            loader: eventPageLoader,
+          },
+          { path: "new", element: <NewEventPage /> },
+          { path: ":id/edit", element: <EditEventPage /> },
+          {
+            path: ":id",
+            element: <EventDetailPage />,
+            loader: eventDetailLoader,
           },
         ],
       },

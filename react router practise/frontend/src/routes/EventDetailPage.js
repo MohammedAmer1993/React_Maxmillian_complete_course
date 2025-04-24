@@ -1,9 +1,23 @@
-import { useParams } from "react-router-dom";
+import { json, useLoaderData } from "react-router-dom";
+import EventItem from "../components/EventItem";
 export default function EventDetailPage() {
-  const params = useParams();
+  const data = useLoaderData();
+  console.log(data);
   return (
     <>
-      <h1>Event Detail {params.id} </h1>
+      <EventItem event={data.event} />
     </>
   );
+}
+
+export async function eventDetailLoader(obj) {
+  const res = await fetch("http://localhost:8080/events/" + obj.params.id);
+  if (!res.ok) {
+    throw json(
+      { title: "event error", message: "can't find data for this event" },
+      { status: res.status }
+    );
+  } else {
+    return res;
+  }
 }
