@@ -22,7 +22,6 @@ export async function eventDetailLoader(obj) {
 }
 
 export async function detailAction({ params }) {
-  console.log("from acton");
   const id = params.id;
   const response = await fetch("http://localhost:8080/events/" + id, {
     method: "DELETE",
