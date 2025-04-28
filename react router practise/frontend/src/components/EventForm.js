@@ -1,15 +1,26 @@
-import { useNavigate } from "react-router-dom";
+import {
+  useNavigate,
+  Form,
+  useNavigation,
+  useActionData,
+  redirect,
+} from "react-router-dom";
 
 import classes from "./EventForm.module.css";
 
 function EventForm({ method, event }) {
+  const actionData = useActionData();
+  const navigationState = useNavigation();
   const navigate = useNavigate();
   function cancelHandler() {
     navigate("..");
   }
 
   return (
-    <form className={classes.form}>
+    <Form method={method} className={classes.form}>
+      {actionData &&
+        actionData.errors &&
+        Object.values(actionData.errors).map((err) => <li key={err}>{err}</li>)}
       <p>
         <label htmlFor="title">Title</label>
         <input
@@ -54,10 +65,34 @@ function EventForm({ method, event }) {
         <button type="button" onClick={cancelHandler}>
           Cancel
         </button>
-        <button>Save</button>
+        <button disabled={navigationState.state === "submitting"}>
+          {navigationState.state === "submitting" ? "loading..." : "save"}
+        </button>
       </div>
-    </form>
+    </Form>
   );
 }
 
 export default EventForm;
+
+export async function eventMainAction({ request, params }) {
+  const method = request.method;
+  let url = "http://localhost:8080/events/";
+  const data = await request.formData();
+  const dataObject = Object.fromEntries(data.entries());
+
+  if (method === "PATCH") {
+    url = url + params.id;
+  }
+
+  const response = await fetch(url, {
+    method: method,
+    body: JSON.stringify(dataObject),
+    headers: { "Content-Type": "application/json" },
+  });
+
+  if (!response.ok) {
+    throw response;
+  }
+  return redirect("/events");
+}

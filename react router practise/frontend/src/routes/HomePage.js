@@ -1,7 +1,10 @@
 export default function HomePage() {
+  function clickHandler() {
+    //for testing
+  }
   return (
     <>
-      <h1>Home page</h1>
+      <h1 onClick={clickHandler}>Home page</h1>
     </>
   );
 }

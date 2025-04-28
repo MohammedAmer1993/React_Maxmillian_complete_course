@@ -1,4 +1,4 @@
-import { json, useRouteLoaderData } from "react-router-dom";
+import { json, redirect, useRouteLoaderData } from "react-router-dom";
 import EventItem from "../components/EventItem";
 export default function EventDetailPage() {
   const data = useRouteLoaderData("event-Route-id");
@@ -19,4 +19,19 @@ export async function eventDetailLoader(obj) {
   } else {
     return res;
   }
+}
+
+export async function detailAction({ params }) {
+  console.log("from acton");
+  const id = params.id;
+  const response = await fetch("http://localhost:8080/events/" + id, {
+    method: "DELETE",
+  });
+  if (!response.ok) {
+    throw json(
+      { title: "delete error", message: "faild to delete an item" },
+      { status: response.status }
+    );
+  }
+  return redirect("/events");
 }
