@@ -1,24 +1,39 @@
-import { json, redirect, useRouteLoaderData } from "react-router-dom";
+import { redirect, useRouteLoaderData, Await } from "react-router-dom";
 import EventItem from "../components/EventItem";
+import { fetchEvents, fetchEventDetail } from "../util/dataFetching";
+import { Suspense } from "react";
+import Spinner from "../components/Spinner";
+import EventsList from "../components/EventsList";
+
 export default function EventDetailPage() {
-  const data = useRouteLoaderData("event-Route-id");
+  const { eventDetails, eventsData } = useRouteLoaderData("event-Route-id");
   return (
     <>
-      <EventItem event={data.event} />
+      <Suspense fallback={<Spinner />}>
+        <Await resolve={eventDetails}>
+          {(loadedData) => {
+            return <EventItem event={loadedData.event} />;
+          }}
+        </Await>
+      </Suspense>
+      <Suspense fallback={<Spinner />}>
+        <Await resolve={eventsData}>
+          {(loadedData) => {
+            return <EventsList events={loadedData.events} />;
+          }}
+        </Await>
+      </Suspense>
     </>
   );
 }
 
-export async function eventDetailLoader(obj) {
-  const res = await fetch("http://localhost:8080/events/" + obj.params.id);
-  if (!res.ok) {
-    throw json(
-      { title: "event error", message: "can't find data for this event" },
-      { status: res.status }
-    );
-  } else {
-    return res;
-  }
+export async function eventDetailLoader({ params }) {
+  const id = params.id;
+  console.log(id);
+  return {
+    eventDetails: fetchEventDetail(id),
+    eventsData: fetchEvents(),
+  };
 }
 
 export async function detailAction({ params }) {
@@ -27,9 +42,12 @@ export async function detailAction({ params }) {
     method: "DELETE",
   });
   if (!response.ok) {
-    throw json(
-      { title: "delete error", message: "faild to delete an item" },
-      { status: response.status }
+    throw new Response(
+      JSON.stringify({
+        title: "delete error",
+        message: "faild to delete an item",
+      }),
+      { status: response.status, statusText: response.statusText }
     );
   }
   return redirect("/events");

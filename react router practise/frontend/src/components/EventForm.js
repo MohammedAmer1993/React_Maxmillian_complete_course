@@ -92,7 +92,16 @@ export async function eventMainAction({ request, params }) {
   });
 
   if (!response.ok) {
-    throw response;
+    throw new Response(
+      JSON.stringify({
+        title: "update Events Error",
+        message:
+          method === "POST"
+            ? "couldn't add new post"
+            : "couldn't update the post",
+      }),
+      { status: response.status, statusText: response.statusText }
+    );
   }
   return redirect("/events");
 }

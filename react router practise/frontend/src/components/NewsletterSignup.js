@@ -1,12 +1,10 @@
 import classes from "./NewsletterSignup.module.css";
 import { useFetcher } from "react-router-dom";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 
 function NewsletterSignup() {
   const [subscribed, setSubscriped] = useState(false);
   const fetcher = useFetcher();
-  const count = useRef(0);
-  console.log(count.current);
   useEffect(() => {
     if (fetcher.data?.message === "Signup successful!") {
       setSubscriped(true);

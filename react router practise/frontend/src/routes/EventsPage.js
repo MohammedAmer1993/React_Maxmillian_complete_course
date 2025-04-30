@@ -1,24 +1,23 @@
 import EventsList from "../components/EventsList";
-import { useLoaderData } from "react-router-dom";
-import { json } from "react-router-dom";
-
+import Spinner from "../components/Spinner";
+import { useLoaderData, Await } from "react-router-dom";
+import { Suspense } from "react";
+import { fetchEvents } from "../util/dataFetching";
 export default function EventsPage() {
-  const { events } = useLoaderData();
+  const { eventsData } = useLoaderData();
   return (
     <>
-      <EventsList events={events} />
+      <Suspense fallback={<Spinner />}>
+        <Await resolve={eventsData}>
+          {(loadedData) => {
+            return <EventsList events={loadedData.events} />;
+          }}
+        </Await>
+      </Suspense>
     </>
   );
 }
 
 export async function eventsLoader() {
-  const response = await fetch("http://localhost:8080/events");
-  if (!response.ok) {
-    throw json(
-      { title: "Error", message: "some server errror" },
-      { status: response.status }
-    );
-  } else {
-    return response;
-  }
+  return { eventsData: fetchEvents() };
 }
