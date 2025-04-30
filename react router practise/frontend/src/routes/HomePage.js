@@ -1,10 +1,12 @@
+import PageContent from "../components/PageContent";
 export default function HomePage() {
   function clickHandler() {
     //for testing
   }
   return (
-    <>
-      <h1 onClick={clickHandler}>Home page</h1>
-    </>
+    <PageContent>
+      <h1>Home page</h1>
+      <p>Browse Event now</p>
+    </PageContent>
   );
 }

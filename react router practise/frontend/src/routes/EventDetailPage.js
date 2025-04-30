@@ -31,7 +31,7 @@ export async function eventDetailLoader({ params }) {
   const id = params.id;
   console.log(id);
   return {
-    eventDetails: fetchEventDetail(id),
+    eventDetails: await fetchEventDetail(id),
     eventsData: fetchEvents(),
   };
 }
