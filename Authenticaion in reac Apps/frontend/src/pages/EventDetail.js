@@ -3,7 +3,7 @@ import { useRouteLoaderData, redirect, Await } from "react-router-dom";
 
 import EventItem from "../components/EventItem";
 import EventsList from "../components/EventsList";
-import { getAuthToken } from "../components/util/util";
+import { getAuthToken } from "../util/util";
 
 function EventDetailPage() {
   const { event, events } = useRouteLoaderData("event-detail");

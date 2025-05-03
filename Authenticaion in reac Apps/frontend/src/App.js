@@ -14,14 +14,20 @@ import RootLayout from "./pages/Root";
 import { action as manipulateEventAction } from "./components/EventForm";
 import NewsletterPage, { action as newsletterAction } from "./pages/Newsletter";
 import AuthenticationPage, { authAction } from "./pages/Authentication";
+import { logOutAction } from "./pages/Logout";
+import { getAuthToken } from "./util/util";
+import { checkTokenLoader } from "./util/util";
+import NotFound from "./pages/NotFound";
+
 const router = createBrowserRouter([
   {
     path: "/",
     element: <RootLayout />,
     errorElement: <ErrorPage />,
+    loader: getAuthToken,
+    id: "root",
     children: [
       { index: true, element: <HomePage /> },
-      { path: "auth", element: <AuthenticationPage />, action: authAction },
       {
         path: "events",
         element: <EventsRootLayout />,
@@ -45,6 +51,7 @@ const router = createBrowserRouter([
                 path: "edit",
                 element: <EditEventPage />,
                 action: manipulateEventAction,
+                loader: checkTokenLoader,
               },
             ],
           },
@@ -52,6 +59,7 @@ const router = createBrowserRouter([
             path: "new",
             element: <NewEventPage />,
             action: manipulateEventAction,
+            loader: checkTokenLoader,
           },
         ],
       },
@@ -60,6 +68,9 @@ const router = createBrowserRouter([
         element: <NewsletterPage />,
         action: newsletterAction,
       },
+      { path: "auth", element: <AuthenticationPage />, action: authAction },
+      { path: "logout", action: logOutAction },
+      { path: "*", element: <NotFound /> },
     ],
   },
 ]);
