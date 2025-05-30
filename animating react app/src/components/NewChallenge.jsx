@@ -1,5 +1,5 @@
 import { useContext, useRef, useState } from "react";
-import { motion, useAnimate, stagger } from "framer-motion";
+import { motion, useAnimate, stagger, delay } from "framer-motion";
 
 import { ChallengesContext } from "../store/challenges-context.jsx";
 import Modal from "./Modal.jsx";
@@ -36,7 +36,7 @@ export default function NewChallenge({ onDone }) {
       animate(
         "input , textarea",
         { rotate: [1, 2, 1, 0, -1, -2, -1, 0] },
-        { duration: 0.3, ease: "easeInOut" }
+        { duration: 0.3, ease: "easeInOut", delay: stagger(0.05) }
       );
       return;
     }

@@ -15,6 +15,7 @@ import {
 } from "./assets/HelperFunctions";
 
 function App() {
+  console.log(<GameBoard />);
   const [turns, setTurns] = useState([]);
   const [players, setPlayers] = useState(PLAYERS);
 
