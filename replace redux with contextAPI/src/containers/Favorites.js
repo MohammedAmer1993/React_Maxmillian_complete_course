@@ -1,7 +1,8 @@
 // import { useSelector } from 'react-redux';
-import { useContext } from "react";
-import { ProductsCtx } from "../Context/ProductsContext";
+// import { useContext } from "react";
+// import { ProductsCtx } from "../Context/ProductsContext";
 import FavoriteItem from "../components/Favorites/FavoriteItem";
+import useStore from "../store/costum hook/useStoreHook";
 import "./Products.css";
 
 const Favorites = (props) => {
@@ -9,7 +10,8 @@ const Favorites = (props) => {
   //   state.shop.products.filter(p => p.isFavorite)
   // );
 
-  const { productList } = useContext(ProductsCtx);
+  // const { productList } = useContext(ProductsCtx);
+  const { products: productList } = useStore()[0];
   const favoriteProducts = productList.filter((p) => p.isFavorite);
   let content = <p className="placeholder">Got no favorites yet!</p>;
   if (favoriteProducts.length > 0) {
