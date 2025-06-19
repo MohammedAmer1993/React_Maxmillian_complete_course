@@ -1,8 +1,16 @@
-import { useState } from "react";
-export default function SearchableList({ items }) {
+import { useState, useRef } from "react";
+
+export default function SearchableList({ items, children, genKeyFn }) {
   const [serchTerm, setSerchTerm] = useState("");
+  const timerRef = useRef();
   function handleChange(event) {
-    setSerchTerm(event.target.value);
+    if (timerRef.current) {
+      clearTimeout(timerRef.current);
+    }
+    timerRef.current = setTimeout(() => {
+      timerRef.current = null;
+      setSerchTerm(event.target.value);
+    }, 1000);
   }
 
   const searchResult = items.filter((item) =>
@@ -13,8 +21,8 @@ export default function SearchableList({ items }) {
       <input onChange={handleChange} />
       <ul>
         {searchResult.map((item, idx) => (
-          <li key={idx}>
-            <item>{item.toString()}</item>
+          <li key={genKeyFn(item)}>
+            <item>{children(item)}</item>
           </li>
         ))}
       </ul>
